@@ -1,0 +1,22 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kubia
+spec:
+  tls:
+    - hosts:
+        - snopx.ddns.net
+      secretName: fpq5q5nr7ccfvuqhsq2v
+  rules:
+    - host: snopx.ddns.net
+      http:
+        paths:
+          - path: /app1
+            pathType: Prefix
+            backend:
+              service:
+                name: kubia-nodeport
+                port:
+                  number: 80
+          
