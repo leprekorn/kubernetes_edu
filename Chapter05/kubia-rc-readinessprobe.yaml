@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: kubia
-        image: luksa/kubia
+        image: cr.yandex/crpv4vat29nq8ri5so6o/kubia:latest
         ports:
         - name: http
           containerPort: 8080
@@ -22,4 +22,3 @@ spec:
             command:
             - ls
             - /var/ready
-
