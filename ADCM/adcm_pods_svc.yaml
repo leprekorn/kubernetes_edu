@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15.2
+        env:
+          - name: POSTGRES_DB
+            value: adcm_db
+          - name: POSTGRES_USER
+            value: adcm_user
+          - name: POSTGRES_PASSWORD
+            value: adcm_password
+        volumeMounts:
+          - name: pg-data
+            mountPath: /var/lib/postgresql/data
+        ports:
+          - containerPort: 5432
+            protocol: TCP
+        readinessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 10
+          periodSeconds: 20
+      volumes:
+        - name: pg-data
+          hostPath:
+            path: /home/dennis/pg_data
