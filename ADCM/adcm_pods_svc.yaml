@@ -43,3 +43,80 @@ spec:
         - name: pg-data
           hostPath:
             path: /home/dennis/pg_data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  clusterIP: None
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: postgres
+
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: adcm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adcm
+  template:
+    metadata:
+      labels:
+        app: adcm
+    spec:
+      containers:
+      - name: adcm
+        image: arenadata/adcm:latest
+        env:
+          - name: DB_HOST
+            value: postgres.default.svc.cluster.local
+          - name: DB_PORT
+            value: "5432"  #Fix with ConfigMap
+          - name: DB_NAME
+            value: adcm_db
+          - name: DB_PASS
+            value: adcm_password
+        volumeMounts:
+          - name: adcm-data
+            mountPath: /adcm/data
+        ports:
+          - containerPort: 8000
+            protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 20
+      volumes:
+        - name: adcm-data
+          hostPath:
+            path: /home/dennis/adcm-data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adcm-service  #Fix with Ingress
+spec:
+  type: NodePort
+  ports:
+  - port: 8000
+    targetPort: 8000
+    nodePort: 30000
+  selector:
+    app: adcm
