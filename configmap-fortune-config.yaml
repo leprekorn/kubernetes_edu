@@ -1,0 +1,25 @@
+apiVersion: v1
+data:
+  my-nginx-config.conf: |
+    server {
+        listen              80;
+        server_name         www.kubia-example.com;
+
+        gzip off;
+        gzip_types text/plain application/xml;
+
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+
+    }
+  sleep-interval: |
+    25
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2023-11-24T05:24:51Z"
+  name: fortune-config
+  namespace: default
+  resourceVersion: "2806499"
+  uid: 0498465d-03c0-4f2a-899d-db3f76568b75
