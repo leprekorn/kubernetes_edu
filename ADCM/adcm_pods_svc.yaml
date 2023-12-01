@@ -14,31 +14,31 @@ spec:
         app: postgres
     spec:
       containers:
-      - name: postgres
-        image: postgres:15.2
-        env:
-          - name: POSTGRES_DB
-            value: adcm_db
-          - name: POSTGRES_USER
-            value: adcm_user
-          - name: POSTGRES_PASSWORD
-            value: adcm_password
-        volumeMounts:
-          - name: pg-data
-            mountPath: /var/lib/postgresql/data
-        ports:
-          - containerPort: 5432
-            protocol: TCP
-        readinessProbe:
-          tcpSocket:
-            port: 5432
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        livenessProbe:
-          tcpSocket:
-            port: 5432
-          initialDelaySeconds: 10
-          periodSeconds: 20
+        - name: postgres
+          image: postgres:15.2
+          env:
+            - name: POSTGRES_DB
+              value: adcm_db
+            - name: POSTGRES_USER
+              value: adcm_user
+            - name: POSTGRES_PASSWORD
+              value: adcm_password
+          volumeMounts:
+            - name: pg-data
+              mountPath: /var/lib/postgresql/data
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 10
+            periodSeconds: 20
       volumes:
         - name: pg-data
           hostPath:
@@ -52,8 +52,8 @@ metadata:
 spec:
   clusterIP: None
   ports:
-  - port: 5432
-    targetPort: 5432
+    - port: 5432
+      targetPort: 5432
   selector:
     app: postgres
 
@@ -73,35 +73,35 @@ spec:
         app: adcm
     spec:
       containers:
-      - name: adcm
-        image: arenadata/adcm:latest
-        env:
-          - name: DB_HOST
-            value: postgres.default.svc.cluster.local
-          - name: DB_PORT
-            value: "5432"  #Fix with ConfigMap
-          - name: DB_NAME
-            value: adcm_db
-          - name: DB_PASS
-            value: adcm_password
-        volumeMounts:
-          - name: adcm-data
-            mountPath: /adcm/data
-        ports:
-          - containerPort: 8000
-            protocol: TCP
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 10
-          periodSeconds: 20
+        - name: adcm
+          image: arenadata/adcm:latest
+          env:
+            - name: DB_HOST
+              value: postgres.default.svc.cluster.local
+            - name: DB_PORT
+              value: "5432" #Fix with ConfigMap
+            - name: DB_NAME
+              value: adcm_db
+            - name: DB_PASS
+              value: adcm_password
+          volumeMounts:
+            - name: adcm-data
+              mountPath: /adcm/data
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
       volumes:
         - name: adcm-data
           hostPath:
@@ -111,12 +111,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: adcm-service  #Fix with Ingress
+  name: adcm-service #Fix with Ingress
 spec:
   type: NodePort
   ports:
-  - port: 8000
-    targetPort: 8000
-    nodePort: 30000
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30000
   selector:
     app: adcm
