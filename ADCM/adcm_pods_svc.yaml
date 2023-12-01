@@ -1,4 +1,16 @@
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secrets
+type: Opaque
+stringData:
+  POSTGRES_USER: adcm_user
+  POSTGRES_PASSWORD: adcm_password
+  POSTGRES_DB: adcm_db
+  POSTGRES_TCP_PORT: "5432"
+
+---
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
@@ -13,16 +25,26 @@ spec:
       labels:
         app: postgres
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: postgres
           image: postgres:15.2
           env:
             - name: POSTGRES_DB
-              value: adcm_db
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_DB
             - name: POSTGRES_USER
-              value: adcm_user
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
-              value: adcm_password
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_PASSWORD
           volumeMounts:
             - name: pg-data
               mountPath: /var/lib/postgresql/data
@@ -42,7 +64,7 @@ spec:
       volumes:
         - name: pg-data
           hostPath:
-            path: /home/dennis/pg_data
+            path: /home/k8s_volumes/pg_data
 
 ---
 apiVersion: v1
@@ -72,18 +94,28 @@ spec:
       labels:
         app: adcm
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: adcm
           image: arenadata/adcm:latest
           env:
             - name: DB_HOST
-              value: postgres.default.svc.cluster.local
+              value: postgres
             - name: DB_PORT
-              value: "5432" #Fix with ConfigMap
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_TCP_PORT
             - name: DB_NAME
-              value: adcm_db
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_DB
             - name: DB_PASS
-              value: adcm_password
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_PASSWORD
           volumeMounts:
             - name: adcm-data
               mountPath: /adcm/data
@@ -105,13 +137,13 @@ spec:
       volumes:
         - name: adcm-data
           hostPath:
-            path: /home/dennis/adcm-data
+            path: /home/k8s_volumes/adcm-data
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: adcm-service #Fix with Ingress
+  name: adcm-service #Change with Ingress
 spec:
   type: NodePort
   ports:
