@@ -166,6 +166,7 @@ spec:
       containers:
         - name: postgres
           image: postgres:15.2
+          imagePullPolicy: IfNotPresent
           env:
             - name: POSTGRES_DB
               valueFrom:
@@ -235,6 +236,7 @@ spec:
       containers:
         - name: adcm
           image: arenadata/adcm:latest
+          imagePullPolicy: IfNotPresent
           env:
             - name: DB_HOST
               value: postgres
