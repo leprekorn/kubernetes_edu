@@ -21,7 +21,7 @@ spec:
         memory: 100Ki
       limits:
         cpu: 100m
-        memory: 4Mi
+        memory: 6Mi
     volumeMounts:
     - name: downward
       mountPath: /etc/downward
@@ -50,4 +50,4 @@ spec:
         resourceFieldRef:
           containerName: main
           resource: limits.memory
-          divisor: 1
+          divisor: 1Mi
