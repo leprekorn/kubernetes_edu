@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: kubia
 spec:
+  progressDeadlineSeconds: 30
   replicas: 3
   minReadySeconds: 10
   strategy:
